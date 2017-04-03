@@ -20,6 +20,13 @@ def mean_squared_error(y, t):
     return 0.5 * np.sum((y-t)**2)
 
 def cross_entropy_error(y, t):
-    # 微小な値を加算してlog(0)でマイナス無限大となることを防ぐ
-    delta = 1e-7
-    return  -np.sum(t * np.log(y + delta))
+    if y.ndim == 1:
+        t = t.reshape(1, t.size)
+        y = y.reshape(1, y.size)
+
+    # 教師データがone-hot-vectorだった場合、正解ラベルのインデックスに変換
+    if y.size == t.size:
+        t = t.argmax(axis=1)
+
+    batch_size = y.shape[0]
+    return np.sum(np.log(y[np.arange(batch_size), t])) / batch_size
